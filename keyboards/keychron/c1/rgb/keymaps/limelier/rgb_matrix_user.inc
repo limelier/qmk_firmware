@@ -1,5 +1,5 @@
 RGB_MATRIX_EFFECT(trans_flag)
-RGB_MATRIX_EFFECT(value_gradient)
+RGB_MATRIX_EFFECT(vert_hue_gradient)
 
 #ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 // first i in row, 0 to 5, plus an upper bound for the last row
@@ -34,8 +34,8 @@ static bool trans_flag(effect_params_t* params) {
     return rgb_matrix_check_finished_leds(led_max);
 }
 
-/// static value gradient from dim at the top to bright at the bottom
-static bool value_gradient(effect_params_t* params) {
+// patched version of GRADIENT_UP_DOWN with 6 lines instead of 5
+bool vert_hue_gradient(effect_params_t* params) {
     void set_row(HSV hsv, uint8_t row_idx) {
         RGB rgb = rgb_matrix_hsv_to_rgb(hsv);
 
@@ -48,9 +48,9 @@ static bool value_gradient(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
     HSV hsv = rgb_matrix_config.hsv;
-
+    uint8_t scale = scale8(64, rgb_matrix_config.speed);
     for (uint8_t i = 0; i < ROWS; i++) {
-        hsv.v = rgb_matrix_config.hsv.v * (i + 1) / ROWS;
+        hsv.h = rgb_matrix_config.hsv.h + scale * i;
         set_row(hsv, i);
     }
 
